@@ -7,6 +7,11 @@ import { NavBar } from "@/components/navbar";
 import { Chat } from "@/components/chat";
 import { ChatInput } from "@/components/chat-input";
 import { useLocalStorage } from "usehooks-ts";
+import { ChatPicker } from "@/components/chat-picker";
+import ModelsList from "@/lib/models.json";
+import templates from "@/lib/templates";
+import { ChatSettings } from "@/components/chat-settings";
+import { LLMModelConfig } from "@/lib/models";
 
 export default function Home() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
@@ -19,8 +24,14 @@ export default function Home() {
     model: "gpt-4o-mini",
   });
 
+  const [messages, setMessages] = useState<Message>([])
+
   function logout() {
     supabase ? supabase.auth.signOut() : console.warn("Supabase is not initialized");
+  }
+
+  function handleLanguageModelChange(e: LLMModelConfig) {
+    setLanguageModel({ ...languageModel, ...e });
   }
 
   return (
@@ -52,7 +63,13 @@ export default function Home() {
             isMultiModal={false}
             stop={() => { }}
           >
-            <h1>Hello</h1>
+            <ChatPicker models={ModelsList.models} templates={templates as any} />
+            <ChatSettings
+              languageModel={languageModel}
+              onLanguageModelChange={handleLanguageModelChange}
+              apiKeyConfigurable={true}
+              baseURLConfigurable={true}
+            />
           </ChatInput>
         </div>
       </div>
