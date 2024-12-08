@@ -9,31 +9,71 @@ import {
 import { Button } from "./ui/button";
 import { ArrowUp, Paperclip, Square, X } from "lucide-react";
 
-export const ChatInput = ({
+export function ChatInput({
   error,
   retry,
+  input,
   isLoading,
   stop,
-  input,
+  handleFileChange,
   handleInputChange,
   handleSubmit,
   files,
-  handleFileChange,
-  children,
   isMultiModal,
+  children,
 }: {
   error: undefined | unknown;
   retry: () => void;
   isLoading: boolean;
   stop: () => void;
   input: string;
-  handleInputChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  files: File[]
-  handleFileChange: (file: File[]) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  files: File[];
+  handleFileChange: (files: File[]) => void;
   children: React.ReactNode;
   isMultiModal: boolean;
-}) => {
+}) {
+  function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
+    handleFileChange(Array.from(e.target.files || []));
+  }
+
+  function onEnter(e: React.KeyboardEvent<HTMLFormElement>) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      if (e.currentTarget.checkValidity()) {
+        handleSubmit(e);
+      } else {
+        e.currentTarget.reportValidity();
+      }
+    }
+  }
+
+  function handleFileRemove(file: File) {
+    const newFiles = files ? Array.from(files).filter((f) => f !== file) : [];
+    handleFileChange(newFiles);
+  }
+
+  const filePreview = useMemo(() => {
+    if (files.length === 0) return null;
+    return Array.from(files).map((file) => {
+      return (
+        <div className="relative" key={file.name}>
+          <span
+            onClick={() => handleFileRemove(file)}
+            className="absolute top-[-8] right-[-8] bg-muted rounded-full p-1"
+          >
+            <X className="h-3 w-3" />
+          </span>
+          <img
+            src={URL.createObjectURL(file)}
+            alt={file.name}
+            className="rounded-xl w-10 h-10 object-cover"
+          />
+        </div>
+      );
+    });
+  }, [files]);
 
   return (
     <form
@@ -139,4 +179,3 @@ export const ChatInput = ({
     </form>
   );
 }
-

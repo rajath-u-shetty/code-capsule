@@ -15,11 +15,9 @@ export function useAuth(
   setAuthDialog: (value: boolean) => void,
   setAuthView: (value: AuthViewType) => void
 ) {
-
   const [session, setSession] = useState<Session | null>(null);
   const posthog = usePostHog();
   let recovery = false;
-
   useEffect(() => {
     if (!supabase) {
       console.warn("Supabase is not initialized");
